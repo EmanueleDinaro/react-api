@@ -3,11 +3,7 @@ import { useEffect } from "react";
 import axios from "axios";
 
 function App() {
-  const [productList, setProductList] = useState([
-    "Pane",
-    "mozzarella",
-    "pomodoro",
-  ]);
+  const [productList, setProductList] = useState([]);
   const [newProduct, setNewProduct] = useState("");
   const [foodsPost, setFoodsPost] = useState([]);
 
@@ -23,8 +19,11 @@ function App() {
 
   function fetchFoodsPost() {
     axios
-      .get("https:127.0.0.1:3000/foods")
-      .then((res) => setFoodsPost(res.data));
+      .get("http://127.0.0.1:3000/foods")
+      .then((res) => setFoodsPost(res.data))
+      .catch((error) => {
+        console.error("Errore nel recupero dei dati da express", error);
+      });
   }
   useEffect(fetchFoodsPost, []);
 
@@ -32,11 +31,13 @@ function App() {
     <>
       <h1>Products List</h1>
       <ul>
-        {productList.map((product, index) => {
+        {foodsPost.map((food) => {
           return (
-            <li key={index}>
-              {product}
-              <button onClick={() => deleteProduct(product)}>Cancella</button>
+            <li key={food.id}>
+              {food.title}
+              <button onClick={() => deleteProduct(food.title)}>
+                Cancella
+              </button>
             </li>
           );
         })}
