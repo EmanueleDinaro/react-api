@@ -53,8 +53,17 @@ export default function App() {
     // Invia una richiesta POST per creare un nuovo alimento
     axios.post("http://localhost:3000/foods", formData).then((res) => {
       // Aggiorna lo stato con i dati ricevuti dalla risposta, aggiungendoli all'array corrente
-      setFoodsPost((currentUsers) => [...currentUsers, res.data]);
+      setFoodsPost((currentFoodsPost) => [...currentFoodsPost, res.data]);
       setFormData(initialData);
+    });
+  }
+
+  function handleDeletePost(foodId) {
+    // Effettua una richiesta DELETE per cancellare il post con l'ID specificato
+    axios.delete(`http://localhost:3000/foods/${foodId}`).then(() => {
+      setFoodsPost((currentFoodsPost) =>
+        currentFoodsPost.filter((food) => food.id !== foodId)
+      );
     });
   }
 
@@ -74,19 +83,25 @@ export default function App() {
       <ul>
         {/* Mappo la lista degli elementi e renderizzo un elemento <li> per ogni elemento */}
         {foodsPost.map((food) => (
-          <li key={food.id}>
-            <strong>Titolo:</strong> {food.title}
+          <>
+            <li key={food.id}>
+              <strong>Titolo:</strong> {food.title}
+              <button onClick={() => handleDeletePost(food.id)}>
+                Cancella
+              </button>
+              <br />
+              <strong>Contenuto:</strong> {food.content}
+              <br />
+              <img src={food.image} alt={food.title} />
+              <br />
+              <strong>Tags:</strong>
+              {typeof food.tags === "string" ? food.tags : food.tags.join(", ")}
+            </li>
             <br />
-            <strong>Contenuto:</strong> {food.content}
-            <br />
-            <img src={food.image} alt={food.title} />
-            <br />
-            <strong>Tags:</strong>
-            {typeof food.tags === "string" ? food.tags : food.tags.join(", ")}
-          </li>
+          </>
         ))}
       </ul>
-
+      <hr />
       <form onSubmit={handleSubmitForm}>
         {/* Input per il titolo */}
         <input
