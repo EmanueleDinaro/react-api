@@ -36,13 +36,34 @@ export default function App() {
     });
   };
 
+  // Funzione per recuperare i dati dei cibi dal server tramite una richiesta GET
   function fetchFoodsPost() {
     axios
       .get("http://127.0.0.1:3000/foods")
+      // Se la richiesta ha successo, aggiorna lo stato con i dati ricevuti
       .then((res) => setFoodsPost(res.data))
       .catch((error) => {
         console.error("Errore nel recupero dei dati da express", error);
       });
+  }
+
+  // Funzione per gestire l'invio del modulo
+  function handleSubmitForm(event) {
+    event.preventDefault();
+    // Invia una richiesta POST per creare un nuovo alimento
+    axios.post("http://localhost:3000/foods", formData).then((res) => {
+      // Aggiorna lo stato con i dati ricevuti dalla risposta, aggiungendoli all'array corrente
+      setFoodsPost((currentUsers) => [...currentUsers, res.data]);
+      setFormData(initialData);
+    });
+  }
+
+  // Funzione per gestire le modifiche nei dati del modulo tramite il nome del campo (fieldName) e valore (value)
+  function handleFormData(fieldName, value) {
+    // Aggiorna lo stato dei dati del modulo con il nuovo valore per il campo specificato
+    setFormData((currentFormData) => {
+      return { ...currentFormData, [fieldName]: value };
+    });
   }
 
   useEffect(fetchFoodsPost, []);
@@ -60,19 +81,20 @@ export default function App() {
             <br />
             <img src={food.image} alt={food.title} />
             <br />
-            <strong>Tags:</strong> {food.tags}
+            <strong>Tags:</strong>
+            {typeof food.tags === "string" ? food.tags : food.tags.join(", ")}
           </li>
         ))}
       </ul>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmitForm}>
         {/* Input per il titolo */}
         <input
           type="text"
-          placeholder="Inserisci l'autore"
+          placeholder="Inserisci il nome dell'alimento"
           name="title"
           value={formData.title}
-          onChange={(event) => handleFormField("title", event.target.value)}
+          onChange={(event) => handleFormData("title", event.target.value)}
           required
         />
         <br />
@@ -82,33 +104,27 @@ export default function App() {
           placeholder="Inserisci il contenuto"
           name="content"
           value={formData.content}
-          onChange={(event) => handleFormField("content", event.target.value)}
+          onChange={(event) => handleFormData("content", event.target.value)}
           required
         />
         <br />
-        {/* Selezione per la categoria */}
-        <select
-          name="category"
-          value={formData.category}
-          onChange={(event) => handleFormField("category", event.target.value)}
-          required
-        >
-          <option value="" hidden>
-            Seleziona la categoria
-          </option>
-          <option value="frontend">FrontEnd</option>
-          <option value="backend">BackEnd</option>
-          <option value="uiux">UI/UX</option>
-        </select>
-        <br />
-        {/* Checkbox per la pubblicazione */}
+        {/* Input per l'inserimento del'URL dell'img */}
         <input
-          name="isPublished"
-          type="checkbox"
-          checked={formData.isPublished}
-          onChange={(event) =>
-            handleFormField("isPublished", event.target.checked)
-          }
+          type="url"
+          placeholder="Inserisci l'URL dell'immagine"
+          name="image"
+          value={formData.image}
+          onChange={(event) => handleFormData("image", event.target.value)}
+        />
+        <br />
+        {/* Input per l'inserimento dei tag */}
+        <input
+          type="text"
+          placeholder="Inserisci i tag"
+          name="tags"
+          value={formData.tags}
+          onChange={(event) => handleFormData("tags", event.target.value)}
+          required
         />
         <button type="submit">Invia</button>
       </form>
